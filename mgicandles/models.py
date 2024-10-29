@@ -14,3 +14,4 @@ class Candle(models.Model):
 
     def __str__(self):
         return f"{self.symbol} Candle at {self.timestamp}"
+
