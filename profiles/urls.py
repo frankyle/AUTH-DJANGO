@@ -1,7 +1,11 @@
-from django.urls import path
-from profiles import views as profile_views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ProfileViewSet
+
+router = DefaultRouter()
+router.register(r'profiles', ProfileViewSet, basename='profile')  # Using basename for clarity
 
 urlpatterns = [
-    path('edit/', profile_views.ProfileEditView.as_view(), name='profile_edit'),
-    # Add other profile-related URL patterns as needed
+    path('', include(router.urls)),  # Including router URLs directly
 ]
+

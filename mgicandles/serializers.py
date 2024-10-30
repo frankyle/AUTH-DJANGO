@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Candle
+from .models import MgiCandles
 
-class CandleSerializer(serializers.ModelSerializer):
+class MgiCandlesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Candle
+        model = MgiCandles
         fields = '__all__'
