@@ -1,6 +1,12 @@
-from django.urls import path
-from .views import CandleListCreateView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import MgiCandlesViewSet  
+
+router = DefaultRouter()
+router.register(r'mgicandles', MgiCandlesViewSet, basename='mgicandle')  # Use a basename for consistency
 
 urlpatterns = [
-    path('candles/', CandleListCreateView.as_view(), name='candle-list-create'),
+    path('', include(router.urls)),  # No additional path here
 ]
+
+      
