@@ -7,5 +7,7 @@ urlpatterns = [
     path('auth/', include('accounts.urls')),  # URLs for user management
     path('api/profile/', include(profile_urls)),  # URLs for user profiles
     path('api/mgi/', include('mgicandles.urls')),  # Include mgicandles URLs
+    path('api/tradedetails/', include('tradedetails.urls')),  # Include TradeDetails URLs
+    path('api/candleimages/', include('candleimages.urls')),  # Include CandleImages URLs
+    path('api/tradingindicators/', include('tradingindicators.urls')),  # Include TradingIndicators URLs
 ]
-   
