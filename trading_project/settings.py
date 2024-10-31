@@ -29,9 +29,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'corsheaders',
+
+
     'accounts',
     'profiles',
     'mgicandles',
+
+    'tradedetails',
+    'candleimages',
+    'tradingindicators',
 ]
 
 MIDDLEWARE = [
