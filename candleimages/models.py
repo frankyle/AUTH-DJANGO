@@ -15,8 +15,6 @@ class CandleImages(models.Model):
 
     # Other candle types
     swing_trade_candle = models.ImageField(upload_to='swing_trade_candle/', null=True, blank=True)
-    two_hour_candle = models.ImageField(upload_to='two_hour_candles/', null=True, blank=True)
-    breakeven_candle = models.ImageField(upload_to='breakeven_candle/', null=True, blank=True)
 
     class Meta:
         verbose_name = "Candle image"
