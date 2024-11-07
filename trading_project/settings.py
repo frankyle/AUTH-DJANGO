@@ -1,21 +1,40 @@
 from pathlib import Path
 from datetime import timedelta
+import os
+import django_heroku
+from dotenv import load_dotenv
+import dj_database_url
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-4+e7=zp819a$fe#u1nas4j%lej(+eve8t4#ybz5mj!%e)k_^k@'
-DEBUG = True
-ALLOWED_HOSTS = []
+# Secret Key from environment variables
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# CORS Settings
+# Check if SECRET_KEY is loaded
+if not SECRET_KEY:
+    raise Exception("SECRET_KEY is missing. Please set it in the .env file.")
+
+# Debug mode
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() == 'true'
+
+# Allowed hosts
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+
+# CORS and CSRF Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React frontend
+    "http://127.0.0.1:3000",
+    "https://mgi-candles-client-website.vercel.app",
+    "https://mgi-candles-dashbard.vercel.app",
 ]
 
-# Adding both localhost and 127.0.0.1 to CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",  # Sometimes necessary for variations
+    "http://127.0.0.1:3000",
 ]
 
 # Application definition
@@ -30,19 +49,19 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
 
-
+    # Your custom apps
     'accounts',
     'profiles',
     'mgicandles',
-
     'tradedetails',
     'candleimages',
     'tradingindicators',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,25 +90,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'trading_project.wsgi.application'
 
-# Database configuration
+# Database configuration with fallback to SQLite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        ssl_require=os.getenv('DJANGO_PRODUCTION', 'False') == 'True'
+    )
 }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Localization
@@ -98,7 +112,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# Static files configuration
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -112,7 +129,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',  # Allow public access to registration
+        'rest_framework.permissions.AllowAny',
     ),
 }
 
@@ -126,11 +143,20 @@ DJOSER = {
 
 # JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
 }
 
 # Media files (uploaded images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'uploads'
+
+# Enable SSL in production
+SECURE_SSL_REDIRECT = os.getenv('DJANGO_PRODUCTION', 'False') == 'True'
+
+# Activate Django-Heroku settings
+django_heroku.settings(locals())
