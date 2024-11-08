@@ -28,8 +28,7 @@ ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React frontend
     "http://127.0.0.1:3000",
-    "https://mgi-candles-client-website.vercel.app",
-    "https://mgi-candles-dashbard.vercel.app",
+    "https://mgicandles.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
